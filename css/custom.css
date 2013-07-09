@@ -1,0 +1,78 @@
+#iconDash img:hover{
+
+-webkit-box-shadow: 0px 0px 4px 3px ;
+box-shadow: 0px 0px 4px 3px ; 
+
+}
+
+.HL {
+color: #000000;
+text-transform:uppercase;
+}
+
+.dashInfo {
+-webkit-box-shadow: 0px 0px 8px 1px ;
+box-shadow: 0px 0px 8px 1px ; 
+
+max-height:140px;
+max-width:140px;
+
+}
+
+.numberPicker {
+
+width:45px;
+padding:1px;
+
+}
+
+.boxed {
+	min-height: 180px;
+	min-width: 100px;
+	-webkit-border-radius: 0px 0px 5px 5px;
+	border-radius: 0px 0px 5px 5px; 
+	border:  2px solid #C0C0C0;
+	border-top: 4px solid #708090;
+	-webkit-box-shadow: 0px 4px 5px rgba(50, 50, 50, 0.35);
+	-moz-box-shadow:    0px 4px 5px rgba(50, 50, 50, 0.35);
+	box-shadow:         0px 4px 5px rgba(50, 50, 50, 0.35);
+	background-color: #FFFFAFA;
+	width: 85%;
+
+}
+
+.boxedtext {
+	padding-top: 30px;
+	text-align: center;
+	color: #0088C9;
+	font-weight: bold;
+	font-size: 2.75em;
+	text-shadow: 2px 2px 6px rgba(150, 150, 150, 1);
+}
+
+
+.boxedtextSmall{
+	text-align: center;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	font-weight: 500;
+
+}
+/*
+.FixedHeightContainer
+{
+  float:right;
+  height: 50px;
+  width:250px; 
+  padding:3px; 
+  border:4px;
+    
+}
+.ContentClient
+{
+  height:50px;
+   overflow:auto;
+    background:#fff;
+}
+
+*/
