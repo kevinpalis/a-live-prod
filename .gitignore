@@ -1,5 +1,5 @@
 requirements/
-a-live/assets/
-a-live/protected/runtime/
-a-live/themes/classic/views/
+assets/
+protected/runtime/
+themes/classic/views/
 framework/
