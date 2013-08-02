@@ -1,5 +1,6 @@
 requirements/
 assets/
 protected/runtime/
+protected/runtime/gii-1.1.13/
 themes/classic/views/
 framework/
