@@ -18,6 +18,53 @@ $this->menu=array(
 
 
 <?php
+
+//This should be in a helper or components but for the sake of getting this done now, I'll put this here.
+/*::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
+/*::                                                                         :*/
+/*::  This routine calculates the distance between two points (given the     :*/
+/*::  latitude/longitude of those points). It is being used to calculate     :*/
+/*::  the distance between two locations using GeoDataSource(TM) Products    :*/
+/*::                                               :*/
+/*::  Definitions:                                                           :*/
+/*::    South latitudes are negative, east longitudes are positive           :*/
+/*::                                                                         :*/
+/*::  Passed to function:                                                    :*/
+/*::    lat1, lon1 = Latitude and Longitude of point 1 (in decimal degrees)  :*/
+/*::    lat2, lon2 = Latitude and Longitude of point 2 (in decimal degrees)  :*/
+/*::    unit = the unit you desire for results                               :*/
+/*::           where: 'M' is statute miles                                   :*/
+/*::                  'K' is kilometers (default)                            :*/
+/*::                  'N' is nautical miles                                  :*/
+/*::  Worldwide cities and other features databases with latitude longitude  :*/
+/*::  are available at http://www.geodatasource.com                          :*/
+/*::                                                                         :*/
+/*::  For enquiries, please contact sales@geodatasource.com                  :*/
+/*::                                                                         :*/
+/*::  Official Web site: http://www.geodatasource.com                        :*/
+/*::                                                                         :*/
+/*::         GeoDataSource.com (C) All Rights Reserved 2013              :*/
+/*::                                                                         :*/
+/*::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
+function distance($lat1, $lon1, $lat2, $lon2, $unit) {
+
+  $theta = $lon1 - $lon2;
+  $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) +  cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
+  $dist = acos($dist);
+  $dist = rad2deg($dist);
+  $miles = $dist * 60 * 1.1515;
+  $unit = strtoupper($unit);
+
+  if ($unit == "K") {
+    return ($miles * 1.609344);
+  } else if ($unit == "N") {
+      return ($miles * 0.8684);
+    } else {
+        return $miles;
+      }
+}
+
+
 //
 // ext is your protected.extensions folder
 // gmaps means the subfolder name under your protected.extensions folder
@@ -124,7 +171,7 @@ foreach($facilities as $facility) {
       $fmarker->addHtmlInfoWindow($info_window);
       $gMap->addMarker($fmarker); 
     }
-    echo "<li>" . $facility->facilityName . "</li> \n";
+    echo "<li>" . $facility->facilityName . " --- Your distance from this facility: " . distance($geoplugin->latitude,  $geoplugin->longitude, $facility->latitude, $facility->longitude, "M") ." MILES </li> \n";
 } 
 echo "</ul>";
 
