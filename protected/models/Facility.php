@@ -6,9 +6,11 @@
  * The followings are the available columns in table 'facility':
  * @property string $id
  * @property string $facilityName
- * @property string $addres
+ * @property string $address
  * @property string $zipId
  * @property string $facilityStatus
+ * @property double $latitude
+ * @property double $longitude
  *
  * The followings are the available model relations:
  * @property Checkin[] $checkins
@@ -44,12 +46,14 @@ class Facility extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('facilityName, addres', 'length', 'max'=>100),
+			array('latitude, longitude', 'required'),
+			array('latitude, longitude', 'numerical'),
+			array('facilityName, address', 'length', 'max'=>100),
 			array('zipId', 'length', 'max'=>10),
 			array('facilityStatus', 'length', 'max'=>50),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, facilityName, addres, zipId, facilityStatus', 'safe', 'on'=>'search'),
+			array('id, facilityName, address, zipId, facilityStatus, latitude, longitude', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -76,9 +80,11 @@ class Facility extends CActiveRecord
 		return array(
 			'id' => 'ID',
 			'facilityName' => 'Facility Name',
-			'addres' => 'Address',
-			'zipId' => 'City/State/Zip',
+			'address' => 'Address',
+			'zipId' => 'Zip',
 			'facilityStatus' => 'Facility Status',
+			'latitude' => 'Latitude',
+			'longitude' => 'Longitude',
 		);
 	}
 
@@ -95,16 +101,14 @@ class Facility extends CActiveRecord
 
 		$criteria->compare('id',$this->id,true);
 		$criteria->compare('facilityName',$this->facilityName,true);
-		$criteria->compare('addres',$this->addres,true);
+		$criteria->compare('address',$this->address,true);
 		$criteria->compare('zipId',$this->zipId,true);
 		$criteria->compare('facilityStatus',$this->facilityStatus,true);
+		$criteria->compare('latitude',$this->latitude);
+		$criteria->compare('longitude',$this->longitude);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
 		));
-	}
-	
-	public function getStatusOptions(){
-		return array('active'=>'active', 'closed'=>'closed');
 	}
 }

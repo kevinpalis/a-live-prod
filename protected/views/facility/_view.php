@@ -8,8 +8,8 @@
 	<?php echo CHtml::encode($data->facilityName); ?>
 	<br />
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('addres')); ?>:</b>
-	<?php echo CHtml::encode($data->addres); ?>
+	<b><?php echo CHtml::encode($data->getAttributeLabel('address')); ?>:</b>
+	<?php echo CHtml::encode($data->address); ?>
 	<br />
 
 	<b><?php echo CHtml::encode($data->getAttributeLabel('zipId')); ?>:</b>
@@ -18,6 +18,14 @@
 
 	<b><?php echo CHtml::encode($data->getAttributeLabel('facilityStatus')); ?>:</b>
 	<?php echo CHtml::encode($data->facilityStatus); ?>
+	<br />
+
+	<b><?php echo CHtml::encode($data->getAttributeLabel('latitude')); ?>:</b>
+	<?php echo CHtml::encode($data->latitude); ?>
+	<br />
+
+	<b><?php echo CHtml::encode($data->getAttributeLabel('longitude')); ?>:</b>
+	<?php echo CHtml::encode($data->longitude); ?>
 	<br />
 
 

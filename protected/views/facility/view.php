@@ -20,8 +20,10 @@ $this->menu=array(
 	'attributes'=>array(
 		'id',
 		'facilityName',
-		'addres',
+		'address',
 		'zipId',
 		'facilityStatus',
+		'latitude',
+		'longitude',
 	),
 )); ?>

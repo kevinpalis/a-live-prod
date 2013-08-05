@@ -22,19 +22,43 @@ $this->menu=array(
 // ext is your protected.extensions folder
 // gmaps means the subfolder name under your protected.extensions folder
 //  
-Yii::import('ext.EGMap.*');
+Yii::import('ext.EGMap.*'); //import google map
+Yii::import('ext.geoplugin.*'); //import geolocator
 
- 
+$userIP = Yii::app()->request->getUserHostAddress();
+$testIP = '209.85.171.100';
+echo "User IP is: " . $userIP . "<br />";
+echo "\nTest IP is: " . $testIP . "<br />";
+
+//get lat and long
+$geoplugin = new geoPlugin();
+$geoplugin->locate($testIP); //use userIP for production
+//$geoplugin->locate($userIP);
+//echo var_export(unserialize(file_get_contents('http://www.geoplugin.net/php.gp?ip=209.85.171.100')));
+echo "\nGeolocation results for {$geoplugin->ip}: <br />\n".
+  "City: {$geoplugin->city} <br />\n".
+  "Region: {$geoplugin->region} <br />\n".
+  "Area Code: {$geoplugin->areaCode} <br />\n".
+  "DMA Code: {$geoplugin->dmaCode} <br />\n".
+  "Country Name: {$geoplugin->countryName} <br />\n".
+  "Country Code: {$geoplugin->countryCode} <br />\n".
+  "Longitude: {$geoplugin->longitude} <br />\n".
+  "Latitude: {$geoplugin->latitude} <br />\n".
+  "Currency Code: {$geoplugin->currencyCode} <br />\n".
+  "Currency Symbol: {$geoplugin->currencySymbol} <br />\n".
+  "Exchange Rate: {$geoplugin->currencyConverter} <br />\n";
+
+
 $gMap = new EGMap();
-$gMap->zoom = 5;
+$gMap->zoom = 17;
 $mapTypeControlOptions = array(
   'position'=> EGMapControlPosition::RIGHT_BOTTOM,
   'style'=>EGMap::MAPTYPECONTROL_STYLE_DROPDOWN_MENU
 );
 $gMap->setHtmlOptions(array('class'=>'google-maps')); //fix the conlict with bootstrap 
 $gMap->mapTypeControlOptions= $mapTypeControlOptions;
-$gMap->setCenter(40.446947,-102.091827); //center in the US
-
+$gMap->setCenter($geoplugin->latitude, $geoplugin->longitude); //center in IPs location
+$marker = new EGMapMarkerWithLabel($geoplugin->latitude, $geoplugin->longitude, array('title' => 'You are here.'));
 // Create GMapInfoWindows
 /*$info_window_a = new EGMapInfoWindow('<div>I am a marker with custom image!</div>');
 
@@ -49,17 +73,29 @@ $marker->addHtmlInfoWindow($info_window_a);
 $gMap->addMarker($marker);
 */
 
-$info_window_b = new EGMapInfoWindow('Hey! I am a marker with label!');
-// Create marker with label
-$marker = new EGMapMarkerWithLabel(40.446947,-101.091827, array('title' => 'Marker With Label'));
+$info_window_b = new EGMapInfoWindow('This is your current location!');
+//$marker = new EGMapMarkerWithLabel(40.446947,-101.091827, array('title' => 'Marker With Label'));
  
 $label_options = array(
-  'backgroundColor'=>'yellow',
-  'opacity'=>'0.75',
+  'backgroundColor'=>'white',
+  'opacity'=>'0.50',
   'width'=>'100px',
   'color'=>'blue'
 );
- 
+
+// SECOND WAY:
+$marker->labelContent= 'You are here!';
+$marker->labelStyle=$label_options;
+//$marker->draggable=true;
+$marker->labelClass='labels';
+//$marker->raiseOnDrag= true;
+$marker->setLabelAnchor(new EGMapPoint(50,0));
+$marker->addHtmlInfoWindow($info_window_b);
+$gMap->addMarker($marker); 
+// enabling marker clusterer just for fun
+// to view it zoom-out the map
+$gMap->enableMarkerClusterer(new EGMapMarkerClusterer());
+
 /*
 // Two ways of setting options
 // ONE WAY:
@@ -77,22 +113,48 @@ $marker_options = array(
 $marker->setOptions($marker_options);
 */
  
-// SECOND WAY:
-$marker->labelContent= 'Test content';
-$marker->labelStyle=$label_options;
-$marker->draggable=true;
-$marker->labelClass='labels';
-$marker->raiseOnDrag= true;
-$marker->setLabelAnchor(new EGMapPoint(22,0));
-$marker->addHtmlInfoWindow($info_window_b);
-$gMap->addMarker($marker);
- 
-// enabling marker clusterer just for fun
-// to view it zoom-out the map
-$gMap->enableMarkerClusterer(new EGMapMarkerClusterer());
- 
+//replace with proper icon url
+$icon = new EGMapMarkerImage("http://mapicons.nicolasmollet.com/wp-content/uploads/mapicons/shape-default/color-3875d7/shapecolor-color/shadow-1/border-dark/symbolstyle-white/symbolshadowstyle-dark/gradient-no/conference.png");
+echo "<br /> <b> List of all Facilities: </b> <br />";
+echo "<ul>";
+foreach($facilities as $facility) { 
+    if($facility->latitude!=null && $facility->longitude!=null) {
+      $info_window = new EGMapInfoWindow($facility->facilityName);
+      $fmarker = new EGMapMarkerWithLabel($facility->latitude, $facility->longitude, array('title' => $facility->facilityName, 'icon'=>$icon));
+      $fmarker->addHtmlInfoWindow($info_window);
+      $gMap->addMarker($fmarker); 
+    }
+    echo "<li>" . $facility->facilityName . "</li> \n";
+} 
+echo "</ul>";
+
 $gMap->renderMap();
+//Yii::import('ext.egeoip.*');
+//$geoIp = new EGeoIP();
+ 
+//$geoIp->locate(Yii::app()->request->getUserHostAddress()); // use your IP
+ 
+/*echo 'Information regarding IP: <b>'.$geoIp->ip.'</b><br/>';
+echo 'City: '.$geoIp->city.'<br>';
+echo 'Region: '.$geoIp->region.'<br>';
+echo 'Area Code: '.$geoIp->areaCode.'<br>';
+echo 'DMA: '.$geoIp->dma.'<br>';
+echo 'Country Code: '.$geoIp->countryCode.'<br>';
+echo 'Country Name: '.$geoIp->countryName.'<br>';
+echo 'Continent Code: '.$geoIp->continentCode.'<br>';
+echo 'Latitude: '.$geoIp->latitude.'<br>';
+echo 'Longitude: '.$geoIp->longitude.'<br>';
+echo 'Currency Symbol: '.$geoIp->currencySymbol.'<br>';
+echo 'Currency Code: '.$geoIp->currencyCode.'<br>';
+echo 'Currency Converter: '.$geoIp->currencyConverter.'<br/>';
+ 
+echo 'Converting $10.00 to '.$geoIp->currencyCode.': <b>'.$geoIp->currencyConvert(10).'</b><br/>';
+*/
+
 ?>
+
+
+
 <style type="text/css">
 .labels {
    color: red;
@@ -108,50 +170,3 @@ $gMap->renderMap();
 </style>
 <br />
 <!--?php echo CHttpRequest::getUserHostAddress();?--> 
-<?php
-echo "IP Long" . ip2long(Yii::app()->request->getUserHostAddress());
-echo "IP: " . Yii::app()->request->getUserHostAddress();
-?>
-<?php 
-  Yii::import('ext.geoplugin.*');
-
-  $geoplugin = new geoPlugin();
-
-  $geoplugin->locate('209.85.171.100');
-  //echo var_export(unserialize(file_get_contents('http://www.geoplugin.net/php.gp?ip=209.85.171.100')));
-
-  echo "Geolocation results for {$geoplugin->ip}: <br />\n".
-    "City: {$geoplugin->city} <br />\n".
-    "Region: {$geoplugin->region} <br />\n".
-    "Area Code: {$geoplugin->areaCode} <br />\n".
-    "DMA Code: {$geoplugin->dmaCode} <br />\n".
-    "Country Name: {$geoplugin->countryName} <br />\n".
-    "Country Code: {$geoplugin->countryCode} <br />\n".
-    "Longitude: {$geoplugin->longitude} <br />\n".
-    "Latitude: {$geoplugin->latitude} <br />\n".
-    "Currency Code: {$geoplugin->currencyCode} <br />\n".
-    "Currency Symbol: {$geoplugin->currencySymbol} <br />\n".
-    "Exchange Rate: {$geoplugin->currencyConverter} <br />\n";
-  //Yii::import('ext.egeoip.*');
-  //$geoIp = new EGeoIP();
-   
-  //$geoIp->locate(Yii::app()->request->getUserHostAddress()); // use your IP
-   
-  /*echo 'Information regarding IP: <b>'.$geoIp->ip.'</b><br/>';
-  echo 'City: '.$geoIp->city.'<br>';
-  echo 'Region: '.$geoIp->region.'<br>';
-  echo 'Area Code: '.$geoIp->areaCode.'<br>';
-  echo 'DMA: '.$geoIp->dma.'<br>';
-  echo 'Country Code: '.$geoIp->countryCode.'<br>';
-  echo 'Country Name: '.$geoIp->countryName.'<br>';
-  echo 'Continent Code: '.$geoIp->continentCode.'<br>';
-  echo 'Latitude: '.$geoIp->latitude.'<br>';
-  echo 'Longitude: '.$geoIp->longitude.'<br>';
-  echo 'Currency Symbol: '.$geoIp->currencySymbol.'<br>';
-  echo 'Currency Code: '.$geoIp->currencyCode.'<br>';
-  echo 'Currency Converter: '.$geoIp->currencyConverter.'<br/>';
-   
-  echo 'Converting $10.00 to '.$geoIp->currencyCode.': <b>'.$geoIp->currencyConvert(10).'</b><br/>';
-  */
-
-?>

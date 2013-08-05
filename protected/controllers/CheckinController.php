@@ -8,6 +8,8 @@ class CheckinController extends Controller
 	 */
 	public $layout='//layouts/column2';
 
+	//public $facilities; // = array();
+
 	/**
 	 * @return array action filters
 	 */
@@ -127,11 +129,31 @@ class CheckinController extends Controller
 	 */
 	public function actionIndex()
 	{
+		$facilities;
+		//$this->getAllFacilities();
+		$facilities = Facility::model()->findAll();
 		$dataProvider=new CActiveDataProvider('Checkin');
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,
+			'facilities'=>$facilities,
 		));
+		
 	}
+
+	/**
+	 * Lists all models.
+	 */
+	/*public function getAllFacilities()
+	{
+		//foreach(Facility::model()->findAll() as $record) {
+		//}
+		$facilities = Facility::model()->findAll();
+		foreach($facilities as $facility) { 
+
+    		echo $facility->facilityName . " \n";
+		}
+		
+	}*/
 
 	/**
 	 * Manages all models.
