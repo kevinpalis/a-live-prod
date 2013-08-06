@@ -74,7 +74,7 @@ Yii::import('ext.geoplugin.*'); //import geolocator
 
 $userIP = Yii::app()->request->getUserHostAddress();
 $testIP = '209.85.171.100';
-echo "User IP is: " . $userIP . "<br />";
+echo "<br /> <br />User IP is: " . $userIP . "<br />";
 echo "\nTest IP is: " . $testIP . "<br />";
 
 //get lat and long
@@ -82,6 +82,8 @@ $geoplugin = new geoPlugin();
 $geoplugin->locate($testIP); //use userIP for production
 //$geoplugin->locate($userIP);
 //echo var_export(unserialize(file_get_contents('http://www.geoplugin.net/php.gp?ip=209.85.171.100')));
+//Uncomment code block below to print the detected IP and geolocation
+/*
 echo "\nGeolocation results for {$geoplugin->ip}: <br />\n".
   "City: {$geoplugin->city} <br />\n".
   "Region: {$geoplugin->region} <br />\n".
@@ -94,10 +96,10 @@ echo "\nGeolocation results for {$geoplugin->ip}: <br />\n".
   "Currency Code: {$geoplugin->currencyCode} <br />\n".
   "Currency Symbol: {$geoplugin->currencySymbol} <br />\n".
   "Exchange Rate: {$geoplugin->currencyConverter} <br />\n";
-
+*/
 
 $gMap = new EGMap();
-$gMap->zoom = 17;
+$gMap->zoom = 20;
 $mapTypeControlOptions = array(
   'position'=> EGMapControlPosition::RIGHT_BOTTOM,
   'style'=>EGMap::MAPTYPECONTROL_STYLE_DROPDOWN_MENU
@@ -171,37 +173,51 @@ foreach($facilities as $facility) {
       $fmarker->addHtmlInfoWindow($info_window);
       $gMap->addMarker($fmarker); 
     }
-    echo "<li>" . $facility->facilityName . " --- Your distance from this facility: " . distance($geoplugin->latitude,  $geoplugin->longitude, $facility->latitude, $facility->longitude, "M") ." MILES </li> \n";
+    $dist = distance($geoplugin->latitude,  $geoplugin->longitude, $facility->latitude, $facility->longitude, "M");
+    //if($dist <= $radiusM){
+      echo "<li>" . $facility->facilityName . " --- Your distance from this facility: " . $dist ." Miles </li> \n";
+    //}
 } 
 echo "</ul>";
 
 $gMap->renderMap();
-//Yii::import('ext.egeoip.*');
-//$geoIp = new EGeoIP();
- 
-//$geoIp->locate(Yii::app()->request->getUserHostAddress()); // use your IP
- 
-/*echo 'Information regarding IP: <b>'.$geoIp->ip.'</b><br/>';
-echo 'City: '.$geoIp->city.'<br>';
-echo 'Region: '.$geoIp->region.'<br>';
-echo 'Area Code: '.$geoIp->areaCode.'<br>';
-echo 'DMA: '.$geoIp->dma.'<br>';
-echo 'Country Code: '.$geoIp->countryCode.'<br>';
-echo 'Country Name: '.$geoIp->countryName.'<br>';
-echo 'Continent Code: '.$geoIp->continentCode.'<br>';
-echo 'Latitude: '.$geoIp->latitude.'<br>';
-echo 'Longitude: '.$geoIp->longitude.'<br>';
-echo 'Currency Symbol: '.$geoIp->currencySymbol.'<br>';
-echo 'Currency Code: '.$geoIp->currencyCode.'<br>';
-echo 'Currency Converter: '.$geoIp->currencyConverter.'<br/>';
- 
-echo 'Converting $10.00 to '.$geoIp->currencyCode.': <b>'.$geoIp->currencyConvert(10).'</b><br/>';
-*/
 
+echo "<br />";
+$filteredFacilities = $facilities;
+
+$i = 0;
+foreach($filteredFacilities as $facility) { 
+    $dist = distance($geoplugin->latitude,  $geoplugin->longitude, $facility->latitude, $facility->longitude, "M");
+    if($dist > $radiusM){
+      //echo "Unsetting " . $filteredFacilities[$i]->facilityName . " <br/>";
+      unset($filteredFacilities[$i]);
+    }
+    $i++;
+}
+
+$list = CHtml::listData($filteredFacilities, 'id', 'facilityName');
+echo "Select facility to check into (Note: Already filtered to show only those within a set radius): <br/>";
+echo CHtml::dropDownList('facilities', $filteredFacilities, 
+              $list,
+              array('empty' => '(Select a facility'));
+echo "<br />";
+//echo CHtml::button('Checkin', array('submit' => array('checkin/checkinToFacility'))); 
+echo "<br />";
+$user = Employee::model()->findByPk(Yii::app()->user->id);
+echo CHtml::button('Checkin', array('submit' => array('checkin/checkinToFacility','id'=>$user->id),
+                            'name'=>'checkinBtn',
+                            'confirm'=>'Are you sure you want to checkin?',
+                            'class'=>'btn btn-large btn-danger',
+                            'style'=>'width:160px;'
+                        ));
+//echo CHtml::ajaxButton('Checkin Ajax',Yii::app()->createUrl('checkin/checkinToFacility'));
+
+echo "<br /><br /><b>";
+foreach(Yii::app()->user->getFlashes() as $key => $message) {
+    echo '<div class="flash-' . $key . '">' . $message . "</div>\n";
+}
+echo "</b>";
 ?>
-
-
-
 <style type="text/css">
 .labels {
    color: red;

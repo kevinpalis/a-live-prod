@@ -25,6 +25,7 @@ class Checkin extends CActiveRecord
 	 * @param string $className active record class name.
 	 * @return Checkin the static model class
 	 */
+
 	public static function model($className=__CLASS__)
 	{
 		return parent::model($className);
@@ -111,5 +112,17 @@ class Checkin extends CActiveRecord
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
 		));
+	}
+
+	public function testMethod(){
+    	//$sampleMod=SampleModel::model()->findByPk($id);
+    	//$sampleMod->deleteImage();
+    	echo "Test test test";
+
+    	Yii::app()->end();
+	}
+	public function getRadiusLimitInMiles(){
+
+		return 0.5;
 	}
 }

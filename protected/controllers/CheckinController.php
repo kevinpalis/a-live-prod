@@ -1,13 +1,13 @@
 <?php
 
-class CheckinController extends Controller
+class CheckinController extends RController
 {
 	/**
 	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
 	 * using two-column layout. See 'protected/views/layouts/column2.php'.
 	 */
 	public $layout='//layouts/column2';
-
+	
 	//public $facilities; // = array();
 
 	/**
@@ -16,7 +16,8 @@ class CheckinController extends Controller
 	public function filters()
 	{
 		return array(
-			'accessControl', // perform access control for CRUD operations
+			//'accessControl', // perform access control for CRUD operations
+			'rights',
 		);
 	}
 
@@ -25,7 +26,7 @@ class CheckinController extends Controller
 	 * This method is used by the 'accessControl' filter.
 	 * @return array access control rules
 	 */
-	public function accessRules()
+	/*public function accessRules()
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
@@ -44,7 +45,7 @@ class CheckinController extends Controller
 				'users'=>array('*'),
 			),
 		);
-	}
+	}*/
 
 	/**
 	 * Displays a particular model.
@@ -67,6 +68,25 @@ class CheckinController extends Controller
 
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
+
+		if(isset($_POST['Checkin']))
+		{
+			$model->attributes=$_POST['Checkin'];
+			if($model->save())
+				$this->redirect(array('view','id'=>$model->id));
+		}
+
+		$this->render('create',array(
+			'model'=>$model,
+		));
+	}
+
+	public function actionCreateAjax()
+	{
+		$model=new Checkin;
+
+		// Uncomment the following line if AJAX validation is needed
+		$this->performAjaxValidation($model);
 
 		if(isset($_POST['Checkin']))
 		{
@@ -129,17 +149,49 @@ class CheckinController extends Controller
 	 */
 	public function actionIndex()
 	{
+		$model=new Checkin;
+		Yii::app()->user->setFlash('notice', "Checkins loaded.");
 		$facilities;
+		$radiusM = $model->getRadiusLimitInMiles();
 		//$this->getAllFacilities();
 		$facilities = Facility::model()->findAll();
 		$dataProvider=new CActiveDataProvider('Checkin');
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,
 			'facilities'=>$facilities,
-		));
+			'radiusM'=>$radiusM,
+		));	
 		
 	}
 
+	public function actionCheckinToFacility($id){
+		echo "Checking in...";
+
+
+		$ci = new Checkin();
+		$ci->facilityId = "3";
+		$ci->facilityContactId = "2";
+		$ci->employeeId = "1";
+		$ci->dateCreated = date('Y-m-d H:i:s');
+		$ci->notes = "Jeez";
+		$ci->materialGiven = "";
+		$ci->materialQty = "";
+		$ci->save();
+		//samples
+		//Yii::app()->user->setFlash('success', "Data1 saved!");
+		//Yii::app()->user->setFlash('error', "Data2 failed!");
+		//Yii::app()->user->setFlash('notice', "Data3 ignored.");
+		Yii::app()->end();
+	}
+
+	public function actionMyaction(){
+    	//$sampleMod=SampleModel::model()->findByPk($id);
+    	//$sampleMod->deleteImage();
+    	echo "Test test test";
+    	Checkin::testMethod();
+    	Yii::app()->end();
+	}
+	
 	/**
 	 * Lists all models.
 	 */
