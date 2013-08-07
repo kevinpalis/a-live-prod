@@ -123,7 +123,6 @@ $gMap->addMarker($marker);
 */
 
 $info_window_b = new EGMapInfoWindow('This is your current location!');
-//$marker = new EGMapMarkerWithLabel(40.446947,-101.091827, array('title' => 'Marker With Label'));
  
 $label_options = array(
   'backgroundColor'=>'white',
@@ -166,9 +165,10 @@ $marker->setOptions($marker_options);
 $icon = new EGMapMarkerImage("http://mapicons.nicolasmollet.com/wp-content/uploads/mapicons/shape-default/color-3875d7/shapecolor-color/shadow-1/border-dark/symbolstyle-white/symbolshadowstyle-dark/gradient-no/conference.png");
 echo "<br /> <b> List of all Facilities: </b> <br />";
 echo "<ul>";
+//print all the facilities
 foreach($facilities as $facility) { 
     if($facility->latitude!=null && $facility->longitude!=null) {
-      $info_window = new EGMapInfoWindow($facility->facilityName);
+      $info_window = new EGMapInfoWindow("<b> Facility Name: " . $facility->facilityName . "</b>");
       $fmarker = new EGMapMarkerWithLabel($facility->latitude, $facility->longitude, array('title' => $facility->facilityName, 'icon'=>$icon));
       $fmarker->addHtmlInfoWindow($info_window);
       $gMap->addMarker($fmarker); 
@@ -186,6 +186,7 @@ echo "<br />";
 $filteredFacilities = $facilities;
 
 $i = 0;
+//remove all the facilies that doesn't fall in the set radius (currently .5 miles)
 foreach($filteredFacilities as $facility) { 
     $dist = distance($geoplugin->latitude,  $geoplugin->longitude, $facility->latitude, $facility->longitude, "M");
     if($dist > $radiusM){
@@ -195,29 +196,57 @@ foreach($filteredFacilities as $facility) {
     $i++;
 }
 
+$form=$this->beginWidget('bootstrap.widgets.TbActiveForm',array(
+  'id'=>'checkin-form',
+  'enableAjaxValidation'=>false,
+  'htmlOptions' => array(
+        'enctype' => 'multipart/form-data',
+),));
+//echo $form->errorSummary($this);
+echo CHtml::hiddenField('formName',
+    'Checkin'
+    ); 
 $list = CHtml::listData($filteredFacilities, 'id', 'facilityName');
 echo "Select facility to check into (Note: Already filtered to show only those within a set radius): <br/>";
-echo CHtml::dropDownList('facilities', $filteredFacilities, 
-              $list,
-              array('empty' => '(Select a facility'));
+echo CHtml::dropDownList('facilities', $filteredFacilities, $list, array('empty' => 'Select a facility'));
 echo "<br />";
 //echo CHtml::button('Checkin', array('submit' => array('checkin/checkinToFacility'))); 
 echo "<br />";
+
+
+
 $user = Employee::model()->findByPk(Yii::app()->user->id);
-echo CHtml::button('Checkin', array('submit' => array('checkin/checkinToFacility','id'=>$user->id),
+
+$this->widget('bootstrap.widgets.TbButton', array(
+      'buttonType'=>'submit',
+      'type'=>'primary',
+      'label'=>'Checkin',
+      'url'=>'checkin/checkinToFacility',
+    ));
+
+
+echo CHtml::button('Checkin', array(  'submit' => array('checkin/checkinToFacility','id'=>$user->id),
                             'name'=>'checkinBtn',
                             'confirm'=>'Are you sure you want to checkin?',
                             'class'=>'btn btn-large btn-danger',
                             'style'=>'width:160px;'
                         ));
-//echo CHtml::ajaxButton('Checkin Ajax',Yii::app()->createUrl('checkin/checkinToFacility'));
 
+$this->endWidget();
 echo "<br /><br /><b>";
 foreach(Yii::app()->user->getFlashes() as $key => $message) {
     echo '<div class="flash-' . $key . '">' . $message . "</div>\n";
 }
 echo "</b>";
 ?>
+
+<script>
+$('#facilities').change(function(){ 
+    var selectedFac = $('#facilities :selected').text();
+    //Here update the div where you need to see the selected value
+});
+
+</script>
 <style type="text/css">
 .labels {
    color: red;
@@ -232,4 +261,4 @@ echo "</b>";
 }
 </style>
 <br />
-<!--?php echo CHttpRequest::getUserHostAddress();?--> 
+

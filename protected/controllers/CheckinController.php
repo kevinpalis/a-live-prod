@@ -165,20 +165,24 @@ class CheckinController extends RController
 	}
 
 	public function actionCheckinToFacility($id){
-		echo "Checking in...";
 
+		$facId = $_POST['facilities'];
+		echo "Checking in..." . $id . "and " . $facId;
 
+		
+
+		print_r($_POST);
 		$ci = new Checkin();
-		$ci->facilityId = "3";
-		$ci->facilityContactId = "2";
-		$ci->employeeId = "1";
+		$ci->facilityId = $facId;
+		$ci->facilityContactId = "2"; //temp. query the table looking where facId=id
+		$ci->employeeId = $id;
 		$ci->dateCreated = date('Y-m-d H:i:s');
-		$ci->notes = "Jeez";
+		$ci->notes = "Checked in";
 		$ci->materialGiven = "";
 		$ci->materialQty = "";
 		$ci->save();
 		//samples
-		//Yii::app()->user->setFlash('success', "Data1 saved!");
+		Yii::app()->user->setFlash('success', "Data saved!");
 		//Yii::app()->user->setFlash('error', "Data2 failed!");
 		//Yii::app()->user->setFlash('notice', "Data3 ignored.");
 		Yii::app()->end();
